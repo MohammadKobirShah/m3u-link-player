@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRM Stream with JW Player</title>
+    <script src="https://cdn.jwplayer.com/libraries/your_library_key.js"></script>
+</head>
+<body>
+    <div id="my-jwplayer"></div>
+    <script>
+        jwplayer("my-jwplayer").setup({
+            file: "https://m3u.yuvraj49.xyz/p/nWydGaL5FEDg/manifest/522.m3u8",
+            width: "100%",
+            aspectratio: "16:9",
+            drm: {
+                type: "clearkey",
+                clearkeys: {
+                    "522": "" // Replace with your actual clear key
+                },
+                license: {
+                    url: "https://m3u.yuvraj49.xyz/p/nWydGaL5FEDg/license/key?id=522",
+                    headers: [
+                        { name: "Origin", value: "https://watch.tataplay.com" },
+                        { name: "Referer", value: "https://watch.tataplay.com/" },
+                        { name: "User-Agent", value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.1 Safari/537.36" }
+                    ]
+                }
+            }
+        });
+    </script>
+</body>
+</html>
