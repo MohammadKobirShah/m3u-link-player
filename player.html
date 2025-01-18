@@ -1,33 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRM Stream with JW Player</title>
-    <script src="https://cdn.jwplayer.com/libraries/KB5zFt7A.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shaka Player DRM Streaming</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.6/shaka-player.min.js"></script>
 </head>
 <body>
-    <div id="my-jwplayer"></div>
-    <script>
-        jwplayer("my-jwplayer").setup({
-            file: "https://m3u.yuvraj49.xyz/p/nWydGaL5FEDg/manifest/522.m3u8",
-            width: "100%",
-            aspectratio: "16:9",
-            drm: {
-                type: "clearkey",
-                clearkeys: {
-                    "522": "org.w3.clearkey" // Replace with your actual clear key
-                },
-                license: {
-                    url: "https://m3u.yuvraj49.xyz/p/nWydGaL5FEDg/license/key?id=522",
-                    headers: [
-                        { name: "Origin", value: "https://watch.tataplay.com" },
-                        { name: "Referer", value: "https://watch.tataplay.com/" },
-                        { name: "User-Agent", value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.1 Safari/537.36" }
-                    ]
-                }
-            }
-        });
-    </script>
+  <video id="video" width="640" height="360" controls autoplay></video>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Reference to the video element
+      const video = document.getElementById('video');
+
+      // Instantiate Shaka Player
+      const player = new shaka.Player(video);
+
+      // Listen for Shaka Player errors
+      player.addEventListener('error', (event) => {
+        console.error('Error code', event.detail.code, 'object', event.detail);
+      });
+
+      // Configure DRM Clear Key and custom headers
+      player.configure({
+        drm: {
+          clearKeys: {
+            // Provide Clear Key map (kid:key) if available
+            '522': '<base64-encoded-key>' // Replace <base64-encoded-key> with your key
+          },
+          servers: {
+            'org.w3.clearkey': 'https://m3u.yuvraj49.xyz/p/nWydGaL5FEDg/license/key?id=522'
+          },
+          advanced: {
+            'org.w3.clearkey': {
+              // Optional settings for Clear Key
+              videoRobustness: 'SW_SECURE_CRYPTO',
+              audioRobustness: 'SW_SECURE_CRYPTO',
+            },
+          },
+        },
+      });
+
+      // Add custom headers for the license request
+      player.getNetworkingEngine().registerRequestFilter((type, request) => {
+        if (type === shaka.net.NetworkingEngine.RequestType.LICENSE) {
+          request.headers['Origin'] = 'https://watch.tataplay.com';
+          request.headers['Referer'] = 'https://watch.tataplay.com/';
+          request.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.1 Safari/537.36';
+        }
+      });
+
+      // Provide the Manifest URL of your live stream
+      const manifestUri = 'https://your-live-stream-manifest.mpd'; // Replace with your manifest URL
+
+      try {
+        // Load the manifest
+        await player.load(manifestUri);
+        console.log('The video has now been loaded!');
+      } catch (error) {
+        console.error('Error loading video', error);
+      }
+    });
+  </script>
 </body>
 </html>
